@@ -38,14 +38,14 @@ func (s *server) BlocksHandler(w http.ResponseWriter, r *http.Request) {
 	case http.MethodGet:
 		block, err := s.txParser.GetCurrentBlock()
 		if err != nil {
+			if errors.IsUnavailable(err) {
+				log.Printf("[ERROR] Current block is not initialised")
+				http.Error(w, http.StatusText(http.StatusServiceUnavailable), http.StatusServiceUnavailable)
+				return
+			}
+
 			log.Printf("[ERROR] Failed to get current block: %v", err)
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-			return
-		}
-
-		if block == 0 {
-			log.Printf("[ERROR] Current block is not initialised")
-			http.Error(w, http.StatusText(http.StatusServiceUnavailable), http.StatusServiceUnavailable)
 			return
 		}
 
