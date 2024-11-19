@@ -40,7 +40,7 @@ func TestPollingProvider_Start(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 
 	mockStorage.EXPECT().GetLatestBlock().Return(nil, nil).AnyTimes()
-	mockClient.EXPECT().GetLatestBlock(gomock.Any()).Return(&types.Block{Hash: "hash1"}, nil).AnyTimes()
+	mockClient.EXPECT().GetLatestBlock(gomock.Any()).Return(&types.Block{Hash: "hash1", Number: big.NewInt(1)}, nil).AnyTimes()
 	mockStorage.EXPECT().AtomicWrite(gomock.Any()).Return(nil).AnyTimes()
 
 	go func() {
@@ -62,7 +62,7 @@ func TestPollingProvider_poll(t *testing.T) {
 
 	t.Run("no latest block in storage", func(t *testing.T) {
 		mockStorage.EXPECT().GetLatestBlock().Return(nil, nil)
-		mockClient.EXPECT().GetLatestBlock(gomock.Any()).Return(&types.Block{Hash: "hash1"}, nil)
+		mockClient.EXPECT().GetLatestBlock(gomock.Any()).Return(&types.Block{Hash: "hash1", Number: big.NewInt(1)}, nil)
 		mockStorage.EXPECT().AtomicWrite(gomock.Any()).Return(nil)
 
 		err := provider.poll()
@@ -70,16 +70,16 @@ func TestPollingProvider_poll(t *testing.T) {
 	})
 
 	t.Run("no new block", func(t *testing.T) {
-		mockStorage.EXPECT().GetLatestBlock().Return(&types.Block{Hash: "hash1"}, nil)
-		mockClient.EXPECT().GetLatestBlock(gomock.Any()).Return(&types.Block{Hash: "hash1"}, nil)
+		mockStorage.EXPECT().GetLatestBlock().Return(&types.Block{Hash: "hash1", Number: big.NewInt(1)}, nil)
+		mockClient.EXPECT().GetLatestBlock(gomock.Any()).Return(&types.Block{Hash: "hash1", Number: big.NewInt(1)}, nil)
 
 		err := provider.poll()
 		assert.NoError(t, err)
 	})
 
 	t.Run("new consecutive block", func(t *testing.T) {
-		mockStorage.EXPECT().GetLatestBlock().Return(&types.Block{Hash: "hash1"}, nil)
-		mockClient.EXPECT().GetLatestBlock(gomock.Any()).Return(&types.Block{Hash: "hash2", ParentHash: "hash1"}, nil)
+		mockStorage.EXPECT().GetLatestBlock().Return(&types.Block{Hash: "hash1", Number: big.NewInt(1)}, nil)
+		mockClient.EXPECT().GetLatestBlock(gomock.Any()).Return(&types.Block{Hash: "hash2", ParentHash: "hash1", Number: big.NewInt(2)}, nil)
 		mockStorage.EXPECT().AtomicWrite(gomock.Any()).Return(nil)
 
 		err := provider.poll()
