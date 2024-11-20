@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 
@@ -25,9 +24,9 @@ func (s *server) Start() error {
 	http.HandleFunc("/subscriptions", s.SubscriptionsHandler)
 	http.HandleFunc("/transactions", s.TransactionsHandler)
 
-	fmt.Printf("Server started on %s\n", s.addr)
+	log.Printf("Server started on %s\n", s.addr)
 	if err := http.ListenAndServe(s.addr, nil); err != nil {
-		fmt.Printf("Failed to start server: %v\n", err)
+		log.Printf("Failed to start server: %v\n", err)
 		return err
 	}
 	return nil
