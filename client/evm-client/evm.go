@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/ArnaudovSt/tx-parser/client"
 	"github.com/ArnaudovSt/tx-parser/types"
@@ -37,6 +38,9 @@ func (e *evmClient) GetLatestBlock(ctx context.Context) (*types.Block, error) {
 }
 
 func (e *evmClient) makeRequest(ctx context.Context, jsonRequest string) (*types.Block, error) {
+	ctx, cancel := context.WithTimeout(ctx, time.Second)
+	defer cancel()
+
 	req, err := http.NewRequestWithContext(ctx, "POST", e.url, strings.NewReader(jsonRequest))
 	if err != nil {
 		return nil, fmt.Errorf("error creating request: %v", err)

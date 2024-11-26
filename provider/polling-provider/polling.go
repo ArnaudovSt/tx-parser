@@ -50,10 +50,7 @@ func (p *pollingProvider) poll() error {
 		return err
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-	defer cancel()
-
-	newLatestBlock, err := p.client.GetLatestBlock(ctx)
+	newLatestBlock, err := p.client.GetLatestBlock(context.Background())
 	if err != nil {
 		return err
 	}
@@ -84,10 +81,7 @@ func (p *pollingProvider) poll() error {
 		for blockPointer.Number.Uint64() > currentLatestBlock.Number.Uint64() {
 			blocksToAdd = append(blocksToAdd, blockPointer)
 
-			ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-			defer cancel()
-
-			blockPointer, err = p.client.GetBlockByHash(ctx, blockPointer.ParentHash)
+			blockPointer, err = p.client.GetBlockByHash(context.Background(), blockPointer.ParentHash)
 			if err != nil {
 				return err
 			}
@@ -105,10 +99,7 @@ func (p *pollingProvider) handleReorg(w storage.IAtomicWriter, currentLatestBloc
 	for blockPointer.Hash != currentLatestBlock.Hash {
 		blocksToAdd = append(blocksToAdd, blockPointer)
 
-		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-		defer cancel()
-
-		blockPointer, err = p.client.GetBlockByHash(ctx, blockPointer.ParentHash)
+		blockPointer, err = p.client.GetBlockByHash(context.Background(), blockPointer.ParentHash)
 		if err != nil {
 			return err
 		}
